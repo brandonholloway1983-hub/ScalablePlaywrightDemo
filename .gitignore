@@ -1,0 +1,8 @@
+node_modules/
+.env
+playwright-report/
+allure-results/
+allure-report/
+test-results/
+auth.json
+*.local

@@ -1,0 +1,84 @@
+name: ScalablePlaywrightDemo
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'  # Nightly at 6am UTC — catch environment drift
+
+jobs:
+
+  # ── Stage 1: Smoke ──────────────────────────────────────
+  # Fast gate — critical path only
+  # If this fails, regression does not run
+  # Keeps CI fast and avoids wasting minutes on a broken app
+  smoke:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests
+        run: npx playwright test --grep @smoke --project=chromium --workers=1
+        env:
+          BASE_URL:     ${{ secrets.BASE_URL }}
+          OHR_USERNAME: ${{ secrets.OHR_USERNAME }}
+          OHR_PASSWORD: ${{ secrets.OHR_PASSWORD }}
+
+      - name: Upload smoke report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-report
+          path: playwright-report/
+          retention-days: 14
+
+  # ── Stage 2: Regression ─────────────────────────────────
+  # Only runs if smoke passes
+  # Full suite with AI failure analysis on failures
+  regression:
+    name: Regression Tests
+    runs-on: ubuntu-latest
+    needs: smoke
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run regression tests
+        run: npx playwright test --grep @regression --project=chromium --workers=1
+        env:
+          BASE_URL:          ${{ secrets.BASE_URL }}
+          OHR_USERNAME:      ${{ secrets.OHR_USERNAME }}
+          OHR_PASSWORD:      ${{ secrets.OHR_PASSWORD }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CI:                true
+
+      - name: Upload regression report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regression-report
+          path: playwright-report/
+          retention-days: 30

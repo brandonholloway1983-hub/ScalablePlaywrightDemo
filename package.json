@@ -1,0 +1,21 @@
+{
+  "name": "scalable-playwright-demo",
+  "version": "1.0.0",
+  "description": "Scalable Playwright framework with AI-assisted failure analysis — built against OrangeHRM as an analog for enterprise RTSM-style applications",
+  "type": "module",
+  "scripts": {
+    "test:smoke": "playwright test --grep @smoke --project=chromium",
+    "test:regression": "playwright test --grep @regression --project=chromium",
+    "test:all": "playwright test --project=chromium",
+    "report:allure": "allure generate allure-results --clean -o allure-report && allure open allure-report",
+    "report:html": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "allure-playwright": "^3.0.0",
+    "dotenv": "^16.4.5"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0"
+  }
+}
