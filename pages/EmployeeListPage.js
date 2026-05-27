@@ -80,7 +80,7 @@ export class EmployeeListPage extends BasePage {
   async getRecordCount() {
     const countSpan = this.page
       .locator('span.oxd-text')
-      .filter({ hasText: 'Records Found' });
+      .filter({ hasText: /Record(s)? Found/ });
 
     await countSpan.waitFor({ state: 'visible', timeout: 10000 });
     const text = await countSpan.innerText();
