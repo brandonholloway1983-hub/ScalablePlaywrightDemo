@@ -18,6 +18,10 @@ import { analyzeFailure } from '../../utils/failureAnalyzer.js';
 // Safe to run against production.
 // ─────────────────────────────────────────────────────────
 
+// Smoke tests verify the login flow directly
+// They must run without storageState so the login page is accessible
+test.use({ storageState: undefined });
+
 // Attach AI failure analysis to every failing test
 test.afterEach(async ({ page }, testInfo) => {
   if (testInfo.status === 'failed') {

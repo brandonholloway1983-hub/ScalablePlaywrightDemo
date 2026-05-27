@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 dotenv.config();
 
+
 // ─────────────────────────────────────────────────────────
 // ScalablePlaywrightDemo — Playwright Configuration
 //
@@ -17,6 +18,8 @@ dotenv.config();
 // ─────────────────────────────────────────────────────────
 
 export default defineConfig({
+
+
   testDir: './tests',
 
   timeout: 30000,
@@ -40,7 +43,7 @@ export default defineConfig({
 
   use: {
     baseURL: process.env.BASE_URL,
-
+  
     waitUntil: 'domcontentloaded',
 
     actionTimeout: 10000,
@@ -52,15 +55,31 @@ export default defineConfig({
   },
 
   projects: [
-    // ── Active ───────────────────────────────────────────
+    // ── Setup project — runs once, saves auth session ────
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'setup',
+      testMatch: /globalSetup\.js/,
     },
 
-    // ── Add when coverage needs to expand ────────────────
-    // { name: 'webkit',        use: { ...devices['Desktop Safari'] } },
-    // { name: 'mobile-chrome', use: { ...devices['Pixel 5'] } },
-    // { name: 'mobile-safari', use: { ...devices['iPhone 13'] } },
+    // ── Smoke — no auth, tests login flow directly ───────
+    {
+      name: 'chromium-smoke',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: undefined,
+      },
+      testMatch: /smoke\.spec\.js/,
+    },
+
+    // ── Regression — uses saved auth session ─────────────
+    {
+      name: 'chromium-regression',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'auth.json',
+      },
+      dependencies: ['setup'],
+      testMatch: /regression\/.*\.spec\.js/,
+    },
   ],
 });
