@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../../pages/LoginPage.js';
 import { EmployeeListPage } from '../../pages/EmployeeListPage.js';
 import { analyzeFailure } from '../../utils/failureAnalyzer.js';
 
@@ -18,12 +17,7 @@ import { analyzeFailure } from '../../utils/failureAnalyzer.js';
 // Runs only after smoke gate passes.
 // ─────────────────────────────────────────────────────────
 
-// Login before every test
-test.beforeEach(async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  await loginPage.goto();
-  await loginPage.loginWithEnvCredentials();
-});
+
 
 // AI failure analysis on every failure
 test.afterEach(async ({ page }, testInfo) => {

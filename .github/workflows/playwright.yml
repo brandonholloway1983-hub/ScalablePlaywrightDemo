@@ -32,7 +32,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run smoke tests
-        run: npx playwright test --grep @smoke --project=chromium --workers=1
+        run: npx playwright test --project=chromium-smoke --workers=1
         env:
           BASE_URL:     ${{ secrets.BASE_URL }}
           OHR_USERNAME: ${{ secrets.OHR_USERNAME }}
@@ -67,7 +67,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run regression tests
-        run: npx playwright test --grep @regression --project=chromium --workers=1
+        run: npx playwright test --project=chromium-regression --workers=1
         env:
           BASE_URL:          ${{ secrets.BASE_URL }}
           OHR_USERNAME:      ${{ secrets.OHR_USERNAME }}

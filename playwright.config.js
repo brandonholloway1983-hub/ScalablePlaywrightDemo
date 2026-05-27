@@ -2,6 +2,13 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 dotenv.config();
 
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+
 // ─────────────────────────────────────────────────────────
 // ScalablePlaywrightDemo — Playwright Configuration
 //
@@ -17,6 +24,9 @@ dotenv.config();
 // ─────────────────────────────────────────────────────────
 
 export default defineConfig({
+
+  globalSetup: resolve(__dirname, 'utils/globalSetup.js'),
+
   testDir: './tests',
 
   timeout: 30000,
@@ -40,7 +50,7 @@ export default defineConfig({
 
   use: {
     baseURL: process.env.BASE_URL,
-
+  
     waitUntil: 'domcontentloaded',
 
     actionTimeout: 10000,
@@ -52,15 +62,24 @@ export default defineConfig({
   },
 
   projects: [
-    // ── Active ───────────────────────────────────────────
+    // ── Smoke — no storageState, tests login directly ────
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'chromium-smoke',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: undefined,
+      },
+      testMatch: '**/smoke/*.spec.js',
     },
 
-    // ── Add when coverage needs to expand ────────────────
-    // { name: 'webkit',        use: { ...devices['Desktop Safari'] } },
-    // { name: 'mobile-chrome', use: { ...devices['Pixel 5'] } },
-    // { name: 'mobile-safari', use: { ...devices['iPhone 13'] } },
+    // ── Regression — uses saved auth session ─────────────
+    {
+      name: 'chromium-regression',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'auth.json',
+      },
+      testMatch: '**/regression/*.spec.js',
+    },
   ],
 });
