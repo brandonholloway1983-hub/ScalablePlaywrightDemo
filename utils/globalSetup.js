@@ -14,6 +14,9 @@ dotenv.config();
 //   - Eliminates repeated login overhead across tests
 //   - Faster suite execution as coverage grows
 //   - Single point of auth failure — easy to diagnose
+//
+// Retry logic handles flaky shared demo environments
+// where login can timeout under load
 // ─────────────────────────────────────────────────────────
 
 async function globalSetup() {
@@ -25,7 +28,21 @@ async function globalSetup() {
 
   const loginPage = new LoginPage(page);
   await loginPage.goto();
-  await loginPage.loginWithEnvCredentials();
+
+  // Retry login up to 3 times — shared demo site can be slow
+  let attempts = 0;
+  while (attempts < 3) {
+    try {
+      await loginPage.loginWithEnvCredentials();
+      break;
+    } catch (error) {
+      attempts++;
+      if (attempts === 3) throw error;
+      console.log(`Login attempt ${attempts} failed, retrying...`);
+      await page.goto(process.env.BASE_URL + '/web/index.php/auth/login');
+      await page.waitForTimeout(2000);
+    }
+  }
 
   // Save session to auth.json
   await context.storageState({ path: 'auth.json' });

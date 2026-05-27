@@ -31,7 +31,7 @@ export class LoginPage extends BasePage {
     await this.usernameField.fill(username);
     await this.passwordField.fill(password);
     await this.loginButton.click();
-    await this.page.waitForURL('**/dashboard/**', { timeout: 15000 });
+    await this.page.waitForURL('**/dashboard/**', { timeout: 30000 });
   }
 
   // Login using environment credentials — standard for test runs
@@ -55,6 +55,6 @@ export class LoginPage extends BasePage {
   }
 
   async verifyLoginSuccessful() {
-    await this.page.waitForURL('**/dashboard/**', { timeout: 15000 });
+    await this.page.waitForURL('**/dashboard/**', { timeout: 30000 });
   }
 }

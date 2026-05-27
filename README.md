@@ -47,17 +47,17 @@ playwright.config.js
 ## The AI Failure Analyzer
 
 When a test fails, the framework automatically sends failure context to Claude and returns a structured analysis:
-────────────────────────────────────────────────────────────
-AI FAILURE ANALYSIS
-────────────────────────────────────────────────────────────
-Test:      search by employee ID returns matching record
-Category:  Timeout
-Severity:  High
-Confidence:High
-────────────────────────────────────────────────────────────
-Cause:     Table did not populate within timeout — API response was slow
-Action:    Check network tab for pending requests on /viewEmployeeList
-────────────────────────────────────────────────────────────
+
+      AI FAILURE ANALYSIS
+    ────────────────────────────────────────────────────────────
+      Test:      search by employee ID returns matching record
+      Category:  Timeout
+      Severity:  High
+      Confidence:High
+    ────────────────────────────────────────────────────────────
+      Cause:     Table did not populate within timeout — API response was slow
+      Action:    Check network tab for pending requests on /viewEmployeeList
+    ────────────────────────────────────────────────────────────
 
 This is the "rules engine / failure categorization" pattern — implemented with AI rather than hardcoded rules, so it handles failure patterns that weren't anticipated when the framework was written. A rule-based fallback runs automatically when the API key is not configured.
 
