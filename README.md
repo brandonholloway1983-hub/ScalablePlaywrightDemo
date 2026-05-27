@@ -2,25 +2,27 @@
 
 A scalable Playwright test automation framework built against OrangeHRM — an enterprise HR management system used here as an analog for complex, data-heavy enterprise applications like clinical trial management systems.
 
-Built to demonstrate: scalable framework architecture, AI-assisted failure analysis, and the kind of foundational thinking that makes a test suite grow cleanly rather than become a maintenance burden.
+Built to demonstrate: scalable framework architecture, AI-assisted failure analysis, storageState authentication, API-level testing, and the kind of foundational thinking that makes a test suite grow cleanly rather than become a maintenance burden.
 
 ---
 
 ## Framework Architecture
 ScalablePlaywrightDemo/
 pages/
-BasePage.js           # Foundation — all page objects inherit from here
-LoginPage.js          # Authentication flows
-EmployeeListPage.js   # Search, filter, table, row actions
+BasePage.js             # Foundation — all page objects inherit from here
+LoginPage.js            # Authentication flows
+EmployeeListPage.js     # Search, filter, table, row actions
 tests/
 smoke/
-smoke.spec.js       # Gate tests — critical path, fast, run first
+smoke.spec.js         # Gate tests — critical path, fast, run first
 regression/
 employeeList.spec.js  # Full workflow coverage, runs after smoke
+api.spec.js           # API contract and API/UI cross-validation
 utils/
-failureAnalyzer.js    # AI-powered failure categorization
+failureAnalyzer.js      # AI-powered failure categorization
+globalSetup.js          # Runs once — saves auth session to auth.json
 .github/workflows/
-playwright.yml        # Two-stage CI — smoke gates regression
+playwright.yml          # Two-stage CI — smoke gates regression
 playwright.config.js
 .env.example
 
@@ -37,6 +39,8 @@ playwright.config.js
 **URL-based navigation** — Tests navigate directly to page URLs rather than clicking through menus. Faster, more reliable, and resilient to navigation restructures.
 
 **Label-scoped selectors** — Form fields are located by their visible label text, not by CSS class or position. Labels are stable business-defined text that almost never changes, making selectors resilient to UI redesigns.
+
+**storageState auth** — `globalSetup.js` performs a single login before the regression suite runs and saves the session to `auth.json`. Regression tests load the saved session instead of logging in individually. Smoke tests opt out via `test.use({ storageState: undefined })` since they test the login flow directly.
 
 ---
 
@@ -61,6 +65,24 @@ This is the "rules engine / failure categorization" pattern — implemented with
 
 ---
 
+## API Testing
+
+The framework tests the REST API directly alongside UI tests — not as a separate concern.
+
+**Pure API tests** validate the `/api/v2/pim/employees` endpoint:
+- Returns 200 status
+- Response has correct structure — `data` array, `meta`, required employee fields
+- Page size and total count are valid
+- Individual employee endpoint returns correct data for a given `empNumber`
+
+**Combined API + UI tests** cross-reference both layers:
+- API total record count matches what the UI displays
+- First employee returned by the API is visible in the UI table
+
+This pattern maps directly to RTSM — clinical trial systems expose APIs for subject data, kit status, and shipment records. Validating API responses alongside UI behavior gives confidence that both layers reflect the same truth.
+
+---
+
 ## Tag Strategy
 
 Tests are tagged to support a risk-based execution hierarchy:
@@ -70,12 +92,13 @@ Tests are tagged to support a risk-based execution hierarchy:
 | `@smoke` | Critical path gate | Every push — before regression |
 | `@critical` | Core workflows | Every regression run |
 | `@regression` | Full suite | After smoke passes |
+| `@api` | API contract and cross-validation | Part of regression suite |
 
 ```bash
 # Run smoke only
 npm run test:smoke
 
-# Run regression only
+# Run regression only (includes API tests)
 npm run test:regression
 
 # Run everything
@@ -126,6 +149,6 @@ Given more time, the next layer of coverage would include:
 
 - **Add Employee workflow** — form validation, required fields, successful creation
 - **Edit Employee** — field updates, save confirmation, data persistence
-- **storageState auth** — save session after login, reuse across all tests to eliminate repeated login overhead
-- **API-level tests** — OrangeHRM exposes REST endpoints; contract testing alongside UI tests
 - **Additional modules** — Leave, Recruitment follow the same table/form/modal pattern and would extend naturally from this foundation
+- **Expanded API coverage** — additional endpoints, error response validation, authentication boundary testing
+- **Performance baselines** — response time assertions on key API endpoints
