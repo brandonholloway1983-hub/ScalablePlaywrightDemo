@@ -27,26 +27,24 @@ async function globalSetup() {
   const page = await context.newPage();
 
   const loginPage = new LoginPage(page);
-  await loginPage.goto();
 
-  // Retry login up to 3 times — shared demo site can be slow
+  // Retry entire login flow up to 3 times
+  // OrangeHRM demo site can be slow or unresponsive under load
   let attempts = 0;
   while (attempts < 3) {
     try {
+      await loginPage.goto();
       await loginPage.loginWithEnvCredentials();
       break;
     } catch (error) {
       attempts++;
       if (attempts === 3) throw error;
-      console.log(`Login attempt ${attempts} failed, retrying...`);
-      await page.goto(process.env.BASE_URL + '/web/index.php/auth/login');
-      await page.waitForTimeout(2000);
+      console.log(`Setup attempt ${attempts} failed, retrying in 3s...`);
+      await page.waitForTimeout(3000);
     }
   }
 
-  // Save session to auth.json
   await context.storageState({ path: 'auth.json' });
-
   console.log('✓ Global setup complete — session saved to auth.json');
 
   await browser.close();
