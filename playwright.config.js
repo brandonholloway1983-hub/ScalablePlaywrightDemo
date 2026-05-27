@@ -58,7 +58,7 @@ export default defineConfig({
     // ── Setup project — runs once, saves auth session ────
     {
       name: 'setup',
-      testMatch: /globalSetup\.js/,
+      testMatch: '**/utils/globalSetup.js',
     },
 
     // ── Smoke — no auth, tests login flow directly ───────
