@@ -2,6 +2,12 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 dotenv.config();
 
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 
 // ─────────────────────────────────────────────────────────
 // ScalablePlaywrightDemo — Playwright Configuration
@@ -19,6 +25,7 @@ dotenv.config();
 
 export default defineConfig({
 
+  globalSetup: resolve(__dirname, 'utils/globalSetup.js'),
 
   testDir: './tests',
 
@@ -55,20 +62,14 @@ export default defineConfig({
   },
 
   projects: [
-    // ── Setup project — runs once, saves auth session ────
-    {
-      name: 'setup',
-      testMatch: '**/utils/globalSetup.js',
-    },
-
-    // ── Smoke — no auth, tests login flow directly ───────
+    // ── Smoke — no storageState, tests login directly ────
     {
       name: 'chromium-smoke',
       use: {
         ...devices['Desktop Chrome'],
         storageState: undefined,
       },
-      testMatch: /smoke\.spec\.js/,
+      testMatch: '**/smoke/*.spec.js',
     },
 
     // ── Regression — uses saved auth session ─────────────
@@ -78,8 +79,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         storageState: 'auth.json',
       },
-      dependencies: ['setup'],
-      testMatch: /regression\/.*\.spec\.js/,
+      testMatch: '**/regression/*.spec.js',
     },
   ],
 });
