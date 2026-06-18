@@ -1,7 +1,8 @@
 {
   "name": "scalable-playwright-demo",
   "version": "1.0.0",
-  "description": "Scalable Playwright framework with AI-assisted failure analysis — built against OrangeHRM as an analog for enterprise RTSM-style applications",
+  "description": "Enterprise-focused Playwright framework with AI-powered failure analysis, two-stage CI, and storageState auth — built against OrangeHRM as an analog for complex enterprise applications",
+  "author": "Brandon Holloway",
   "type": "module",
   "scripts": {
     "test:smoke": "playwright test --project=chromium-smoke",
