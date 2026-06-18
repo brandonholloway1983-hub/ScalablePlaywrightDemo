@@ -1,5 +1,7 @@
 # ScalablePlaywrightDemo
 
+![CI](https://github.com/brandonholloway1983-hub/ScalablePlaywrightDemo/actions/workflows/playwright.yml/badge.svg)
+
 A scalable Playwright test automation framework built against OrangeHRM — an enterprise HR management system used here as an analog for complex, data-heavy enterprise applications like clinical trial management systems.
 
 Built to demonstrate: scalable framework architecture, AI-assisted failure analysis, storageState authentication, API-level testing, and the kind of foundational thinking that makes a test suite grow cleanly rather than become a maintenance burden.
